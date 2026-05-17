@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WMOOV · Now Showing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; }
+        .container { max-width:1400px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:32px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; font-size:0.95rem; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:600; cursor:pointer; color:#F5B042; }
+        .hero-quick { background:linear-gradient(145deg,#12121A,#0A0A10); border-radius:36px; padding:28px 32px; margin-bottom:48px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px; border:1px solid rgba(245,176,66,0.2); }
+        .search-area { display:flex; gap:12px; background:#1A1A24; padding:6px 12px; border-radius:60px; align-items:center; }
+        .search-area input { background:transparent; border:none; padding:10px 0; color:white; outline:none; }
+        .btn-outline { background:rgba(245,176,66,0.15); border:1px solid #F5B042; padding:8px 24px; border-radius:40px; color:#F5B042; cursor:pointer; }
+        .section-header { display:flex; justify-content:space-between; align-items:baseline; margin:40px 0 24px; }
+        .filter-chips { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:32px; }
+        .chip { background:#1A1A26; padding:8px 20px; border-radius:40px; cursor:pointer; border:1px solid #2C2C3A; }
+        .chip.active,.chip:hover { background:#F5B042; color:#0B0B0F; }
+        .movie-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:32px; margin-bottom:60px; }
+        .movie-card { background:#14141E; border-radius:32px; overflow:hidden; border:1px solid #262633; transition:0.25s; }
+        .movie-card:hover { transform:translateY(-6px); border-color:#F5B04288; }
+        .poster { height:280px; background-size:cover; background-position:center; position:relative; }
+        .badge-group { position:absolute; bottom:12px; left:12px; display:flex; gap:8px; }
+        .format-badge { background:#000000aa; backdrop-filter:blur(4px); padding:4px 10px; border-radius:20px; font-size:0.7rem; color:#FFD966; border:1px solid #F5B04266; }
+        .card-info { padding:20px; }
+        .movie-title { font-size:1.35rem; font-weight:700; }
+        .genre { font-size:0.75rem; color:#BFBFE0; margin:8px 0; display:flex; flex-wrap:wrap; gap:6px; }
+        .genre span { background:#1F1F2C; padding:2px 10px; border-radius:20px; }
+        .btn-ticket { background:rgba(245,176,66,0.1); width:100%; border:1px solid #F5B042; padding:10px; border-radius:40px; text-align:center; color:#F5B042; cursor:pointer; margin-top:16px; }
+        footer { margin-top:40px; padding:32px 0; border-top:1px solid rgba(255,255,255,0.05); text-align:center; font-size:0.8rem; color:#7E7E9A; }
+        @media (max-width:750px){ .container{padding:0 20px;} .poster{height:220px;} }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film"></i>WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html" data-lang-key="nav_movies">Movies</a>
+            <a href="now-showing.html" class="active" data-lang-key="nav_now_showing">Now Showing</a>
+            <a href="coming-soon.html" data-lang-key="nav_coming_soon">Coming Soon</a>
+            <a href="cinema.html" data-lang-key="nav_cinemas">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-user-circle"></i></div>
+    </nav>
+
+    <div class="hero-quick">
+        <div><h2><span data-lang-key="hero_title">Now Showing</span></h2><p data-lang-key="hero_desc">Find session times across Hong Kong</p></div>
+        <div><div class="search-area"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search movies..."></div></div>
+    </div>
+
+    <div class="section-header"><h1><span data-lang-key="now_showing_title">Now Showing</span></h1><div class="view-all" onclick="alert('Full list')" data-lang-key="view_all">View all</div></div>
+    <div class="filter-chips" id="filterChips">
+        <div class="chip active" data-filter="all">All</div>
+        <div class="chip" data-filter="imax">IMAX</div>
+        <div class="chip" data-filter="mx4d">MX4D</div>
+        <div class="chip" data-filter="special">Member Preview</div>
+    </div>
+    <div class="movie-grid" id="movieGrid"></div>
+    <footer><p>© 2026 WMOOV · Academic UX Project</p></footer>
+</div>
+
+<script>
+    const nowShowingMovies = [
+        { en:"Cold War 1994", zh:"寒戰1994", genres_en:["Action","Thriller","Crime"], genres_zh:["動作","驚悚","犯罪"], formats:"imax", badge:"IMAX", poster:"image/寒戰1994.jpg" },
+        { en:"The Devil Wears Prada 2", zh:"穿Prada的惡魔2", genres_en:["Drama","Comedy"], genres_zh:["劇情","喜劇"], formats:"special", badge:"Member Preview", poster:"image/穿Prada的惡魔2.jpg" },
+        { en:"The Night King (Director's Cut)", zh:"夜王（導演版）", genres_en:["Fantasy","Action","Epic"], genres_zh:["奇幻","動作","史詩"], formats:"special", badge:"Director's Cut", poster:"image/夜王.jpg" },
+        { en:"Goodbye UFO", zh:"再見UFO", genres_en:["Sci-Fi","Adventure","Drama"], genres_zh:["科幻","冒險","劇情"], formats:"", badge:"", poster:"image/再見UFO.jpg" },
+        { en:"Michael", zh:"米高積遜", genres_en:["Biography","Music"], genres_zh:["傳記","音樂"], formats:"", badge:"Good Reviews", poster:"image/米高積遜.jpg" },
+        { en:"Mortal Kombat II", zh:"真人快打II", genres_en:["Action","Adventure","Fantasy"], genres_zh:["動作","冒險","奇幻"], formats:"imax", badge:"IMAX", poster:"image/真人快打II.jpg" },
+        { en:"The Sheep Detectives", zh:"綿羊偵探團", genres_en:["Family","Comedy","Mystery"], genres_zh:["家庭","喜劇","懸疑"], formats:"mx4d", badge:"MX4D", poster:"image/綿羊偵探團.jpg" },
+        { en:"Top Gun: Maverick", zh:"壯志凌雲：獨行俠", genres_en:["Action"], genres_zh:["動作"], formats:"imax", badge:"Good Reviews", poster:"image/壯志凌雲 - 獨行俠.jpg" },
+        { en:"We Are Not Something", zh:"我們不是什麼", genres_en:["Mystery"], genres_zh:["懸疑"], formats:"", badge:"", poster:"image/我們不是什麼.jpg" },
+        { en:"A Man and A Woman", zh:"一個男人和一個女人", genres_en:["Drama","Romance"], genres_zh:["劇情","愛情"], formats:"", badge:"", poster:"image/一個男人和一個女人.jpg" },
+        { en:"The Silent Friend", zh:"寂靜的朋友", genres_en:["Drama"], genres_zh:["劇情"], formats:"", badge:"", poster:"image/寂靜的朋友.jpeg" },
+        { en:"Top Gun", zh:"壯志凌雲", genres_en:["Action","War"], genres_zh:["動作","戰爭"], formats:"", badge:"", poster:"image/壯志凌雲.jpg" }
+    ];
+
+    const translations = {
+        en: { nav_movies:"Movies", nav_now_showing:"Now Showing", nav_coming_soon:"Coming Soon", nav_cinemas:"Cinemas", hero_title:"Now Showing", hero_desc:"Find session times across Hong Kong", now_showing_title:"Now Showing", view_all:"View all" },
+        zh: { nav_movies:"電影", nav_now_showing:"現在上映", nav_coming_soon:"即將上映", nav_cinemas:"戲院", hero_title:"現在上映", hero_desc:"查找全港戲院的場次時間", now_showing_title:"現正熱映", view_all:"查看全部" }
+    };
+
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+    let currentFilter = "all";
+    let currentSearch = "";
+
+    function getFilteredMovies() {
+        let filtered = [...nowShowingMovies];
+        // 格式筛选
+        if (currentFilter !== "all") {
+            filtered = filtered.filter(m => {
+                if (currentFilter === "imax") return m.formats.includes("imax");
+                if (currentFilter === "mx4d") return m.formats.includes("mx4d");
+                if (currentFilter === "special") return m.formats.includes("special");
+                return true;
+            });
+        }
+        // 搜索筛选（标题匹配）
+        if (currentSearch.trim() !== "") {
+            const searchLower = currentSearch.toLowerCase();
+            filtered = filtered.filter(m => {
+                const title = (currentLang === 'en' ? m.en : m.zh).toLowerCase();
+                return title.includes(searchLower);
+            });
+        }
+        return filtered;
+    }
+
+    function renderMovies() {
+        const filtered = getFilteredMovies();
+        const container = document.getElementById('movieGrid');
+        container.innerHTML = filtered.map(m => {
+            const encodedName = encodeURIComponent(m.en);
+            return `
+                <div class="movie-card" data-formats="${m.formats}">
+                    <div class="poster" style="background-image:url('${m.poster}'); background-size:cover;">
+                        <div class="badge-group">${m.badge ? `<span class="format-badge">${m.badge}</span>` : ''}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="movie-title">${currentLang === 'en' ? m.en : m.zh}</div>
+                        <div class="genre">${(currentLang === 'en' ? m.genres_en : m.genres_zh).map(g => `<span>${g}</span>`).join('')}</div>
+                        <div class="btn-ticket" onclick="window.location.href='movie-detail.html?movie=${encodedName}'">${currentLang === 'en' ? 'View Showtimes' : '查看場次'}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateUI(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        // 重新渲染（因为搜索和筛选依赖当前语言）
+        renderMovies();
+        document.getElementById('langToggle').innerText = lang === 'en' ? '中' : 'EN';
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('wmoov_lang', lang);
+        updateUI(lang);
+    }
+
+    // 筛选事件
+    document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentFilter = chip.getAttribute('data-filter');
+            renderMovies();
+        });
+    });
+
+    // 搜索事件
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        renderMovies();
+    });
+
+    document.getElementById('langToggle').addEventListener('click', () => setLanguage(currentLang === 'en' ? 'zh' : 'en'));
+    setLanguage(currentLang);
+</script>
+</body>
+</html>

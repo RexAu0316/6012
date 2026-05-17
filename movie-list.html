@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WMOOV · 影院場次</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; }
+        .container { max-width:1400px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:32px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; font-size:0.95rem; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:600; cursor:pointer; color:#F5B042; }
+        .cinema-header { background:linear-gradient(145deg,#1A1A2A,#0A0A10); border-radius:40px; padding:28px 32px; margin-bottom:32px; border:1px solid rgba(245,176,66,0.2); }
+        .cinema-name { font-size:2rem; font-weight:800; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+        .cinema-badge { background:rgba(245,176,66,0.15); border:1px solid #F5B042; border-radius:40px; padding:6px 16px; font-size:0.8rem; font-weight:600; color:#F5B042; }
+        .date-selector { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin:24px 0 20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .date-buttons { display:flex; gap:12px; }
+        .date-btn { background:#1A1A26; border:1px solid #2C2C3A; padding:8px 24px; border-radius:40px; font-weight:600; cursor:pointer; }
+        .date-btn.active { background:#F5B042; color:#0B0B0F; border-color:#F5B042; }
+        .next-day { background:rgba(245,176,66,0.15); border:1px solid #F5B042; color:#F5B042; padding:8px 24px; border-radius:40px; cursor:pointer; }
+        .showtimes-grid { display:flex; flex-direction:column; gap:20px; margin-bottom:60px; }
+        .showtime-card { background:#14141E; border-radius:28px; border:1px solid #262633; overflow:hidden; }
+        .card-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:20px 24px; gap:16px; }
+        .movie-info { flex:2; min-width:180px; }
+        .movie-title { font-size:1.2rem; font-weight:700; }
+        .movie-meta { display:flex; flex-wrap:wrap; gap:12px; font-size:0.75rem; color:#A1A1C2; margin-top:6px; }
+        .movie-meta span { background:#1F1F2C; padding:2px 10px; border-radius:30px; }
+        .hall { font-weight:600; color:#FFD966; }
+        .showtime { font-weight:700; }
+        .price { font-weight:700; color:#F5B042; }
+        .buy-btn { background:rgba(245,176,66,0.15); border:1px solid #F5B042; padding:8px 20px; border-radius:40px; color:#F5B042; font-weight:600; cursor:pointer; transition:0.2s; }
+        .buy-btn:hover { background:#F5B042; color:#0B0B0F; }
+        footer { text-align:center; padding:32px 0; margin-top:40px; border-top:1px solid rgba(255,255,255,0.05); color:#7E7E9A; }
+        @media (max-width:850px){ .card-row{flex-direction:column; align-items:stretch;} .buy-btn{text-align:center;} }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film" style="color:#F5B042;"></i>WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html" data-lang-key="nav_movies">Movies</a>
+            <a href="now-showing.html" data-lang-key="nav_now_showing">Now Showing</a>
+            <a href="coming-soon.html" data-lang-key="nav_coming_soon">Coming Soon</a>
+            <a href="cinema.html" data-lang-key="nav_cinemas">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-search"></i><i class="fas fa-user-circle"></i></div>
+    </nav>
+    <div class="cinema-header"><div class="cinema-name"><i class="fas fa-film"></i> <span id="cinemaNameDisplay">Emperor Cinema Times Square</span><span class="cinema-badge" id="cinemaBadge">Causeway Bay</span></div></div>
+    <div class="date-selector"><div class="date-buttons"><button class="date-btn active" data-date="today" data-lang-key="today_btn">Today</button><button class="date-btn" data-date="tomorrow" data-lang-key="tomorrow_btn">Tomorrow</button></div><div class="next-day" id="nextDayBtn" data-lang-key="next_day">Next day →</div></div>
+    <div id="showtimesContainer" class="showtimes-grid"></div>
+    <footer><p>© 2026 WMOOV · Real-time cinema showtimes</p></footer>
+</div>
+<script>
+    // ---------- 影院名称中英文映射（基于 cinema.html 中的全部影院）----------
+    const cinemaNameMap = {
+        // 港岛
+        "Emperor Cinema Times Square": { en: "Emperor Cinema Times Square", zh: "英皇戲院 時代廣場" },
+        "Emperor Cinema Central": { en: "Emperor Cinema Central", zh: "英皇戲院 中環娛樂行" },
+        "Emperor Cinema Plus+": { en: "Emperor Cinema Plus+", zh: "英皇戲院 Plus+" },
+        "Broadway MOVIE MOVIE": { en: "Broadway MOVIE MOVIE", zh: "百老匯 MOVIE MOVIE" },
+        "Pang's Cinema JP": { en: "Pang's Cinema JP", zh: "彭發戲院 JP" },
+        "Cinema City": { en: "Cinema City", zh: "Cinema City" },
+        "MCL Chai Wan": { en: "MCL Chai Wan", zh: "MCL 柴灣" },
+        // 九龙
+        "Emperor Cinema iSQUARE": { en: "Emperor Cinema iSQUARE", zh: "英皇戲院 iSQUARE" },
+        "CGV Cinemas D2 Place": { en: "CGV Cinemas D2 Place", zh: "CGV D2 Place" },
+        "Jade Theatre": { en: "Jade Theatre", zh: "寶石戲院" },
+        "Pang's Cinema MegaBox": { en: "Pang's Cinema MegaBox", zh: "彭發戲院 MegaBox" },
+        "MCL K11 Art House": { en: "MCL K11 Art House", zh: "MCL K11 Art House" },
+        "Sunbeam Theatre Whampoa": { en: "Sunbeam Theatre Whampoa", zh: "新光戲院 黃埔" },
+        "Broadway B+ Cinema apm": { en: "Broadway B+ Cinema apm", zh: "百老匯 B+ apm" },
+        // 新界
+        "Emperor Cinema Plus+ Tai Wai": { en: "Emperor Cinema Plus+ Tai Wai", zh: "英皇戲院 Plus+ 大圍" },
+        "Emperor Cinema Lohas Park": { en: "Emperor Cinema Lohas Park", zh: "英皇戲院 康城" },
+        "Emperor Cinema Tuen Mun": { en: "Emperor Cinema Tuen Mun", zh: "英皇戲院 屯門" },
+        "MCL Metro City": { en: "MCL Metro City", zh: "MCL 新都城" },
+        "Golden Harvest Fanling": { en: "Golden Harvest Fanling", zh: "嘉禾 粉嶺" },
+        "Broadway Tsuen Wan": { en: "Broadway Tsuen Wan", zh: "百老匯 荃灣" }
+    };
+
+    // ---------- 英皇戏院电影ID（用于购票链接）----------
+    const COLD_WAR_BOOKING_URL = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=d879cb987476";
+    const The_Devil_Wears_Prada_2 = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=66a68303fd3d";
+    const Michael = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=06a77707f563";
+    const Top_Gun_Maverick = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=2eac8c3801bf";
+    const The_Sheep_Detectives = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=88139a4fc341";
+    const Mortal_Kombat_II = "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=616db12df8bd";
+    const The_Night_King_Directors_Cut = "https://www.cinema.com.hk/en/cinema/2";
+    const Goodbye_UFO = "https://www.cinema.com.hk/en/movie/656";
+    const Mortal_Kombat_II_CinemaCity = "https://www.cinemacity.com.hk/cinema/detail?wapid=CICI_WEB_PROD_S_MPS&cinemaId=55001";
+    
+    // ---------- 影院场次数据（部分影院）----------
+    const showtimesDB = {
+        "Emperor Cinema Times Square": {
+            location: "Causeway Bay",
+            today: [
+                { movie:"Cold War 1994", hall:"1院", version:"2D 粵語", time:"10:45 AM", price:"$65", rating:"IIB", bookingUrl: COLD_WAR_BOOKING_URL },
+                { movie:"The Devil Wears Prada 2", hall:"5院", version:"2D 英語", time:"11:00 AM", price:"$65", rating:"IIA", bookingUrl: The_Devil_Wears_Prada_2 }
+            ],
+            tomorrow: [
+                { movie:"Top Gun: Maverick", hall:"4院", version:"2D 英語", time:"02:00 PM", price:"$120", rating:"IIA", bookingUrl: Top_Gun_Maverick }
+            ]
+        },
+        "Emperor Cinema Central": {
+            location: "Central",
+            today: [
+                { movie:"Cold War 1994", hall:"2院", version:"2D 粵語", time:"12:30 PM", price:"$65", rating:"IIB", bookingUrl: COLD_WAR_BOOKING_URL },
+                { movie:"Michael", hall:"3院", version:"2D 英語", time:"04:15 PM", price:"$80", rating:"I", bookingUrl: Michael }
+            ],
+            tomorrow: [
+                { movie:"The Sheep Detectives", hall:"1院", version:"2D 粵語", time:"11:15 AM", price:"$60", rating:"I", bookingUrl: The_Sheep_Detectives }
+            ]
+        },
+        "Emperor Cinema Plus+": {
+            location: "Wong Chuk Hang",
+            today: [
+                { movie:"Mortal Kombat II", hall:"4院", version:"2D 英語", time:"01:45 PM", price:"$70", rating:"IIB", bookingUrl: Mortal_Kombat_II }
+            ],
+            tomorrow: []
+        },
+        "Broadway MOVIE MOVIE": {
+            location: "Cityplaza",
+            today: [
+                { movie:"The Night King (Director's Cut)", hall:"IMAX", version:"IMAX 英語", time:"07:00 PM", price:"$150", rating:"IIB", bookingUrl: The_Night_King_Directors_Cut }
+            ],
+            tomorrow: [
+                { movie:"Goodbye UFO", hall:"3院", version:"2D 粵語", time:"03:20 PM", price:"$65", rating:"I", bookingUrl: Goodbye_UFO }
+            ]
+        },
+        "Cinema City": {
+            location: "Lei Tung Centre",
+            today: [
+                { movie:"Mortal Kombat II", hall:"1院", version:"2D 英語", time:"08:00 PM", price:"$70", rating:"IIA", bookingUrl: Mortal_Kombat_II_CinemaCity }
+            ],
+            tomorrow: []
+        },
+        "MCL Chai Wan": {
+            location: "Chai Wan",
+            today: [
+                { movie:"A Man and A Woman", hall:"4院", version:"2D 粵語", time:"02:15 PM", price:"$60", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "Emperor Cinema iSQUARE": {
+            location: "Tsim Sha Tsui",
+            today: [
+                { movie:"John Wick: Chapter 5", hall:"1院", version:"2D 英語", time:"07:00 PM", price:"$130", rating:"III" }
+            ],
+            tomorrow: [
+                { movie:"Cold War 1994", hall:"5院", version:"2D 粵語", time:"12:30 PM", price:"$65", rating:"IIB", bookingUrl: COLD_WAR_BOOKING_URL }
+            ]
+        },
+        "CGV Cinemas D2 Place": {
+            location: "Lai Chi Kok",
+            today: [
+                { movie:"Top Gun: Maverick", hall:"3院", version:"2D 英語", time:"03:00 PM", price:"$120", rating:"IIA" }
+            ],
+            tomorrow: []
+        },
+        "Jade Theatre": {
+            location: "Kowloon City",
+            today: [
+                { movie:"The Silent Friend", hall:"2院", version:"2D 粵語", time:"06:45 PM", price:"$50", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "Pang's Cinema MegaBox": {
+            location: "Kowloon Bay",
+            today: [
+                { movie:"Mortal Kombat II", hall:"1院", version:"2D 英語", time:"04:30 PM", price:"$70", rating:"IIB" }
+            ],
+            tomorrow: []
+        },
+        "MCL K11 Art House": {
+            location: "Tsim Sha Tsui",
+            today: [
+                { movie:"The Devil Wears Prada 2", hall:"6院", version:"2D 英語", time:"01:10 PM", price:"$70", rating:"IIA" }
+            ],
+            tomorrow: []
+        },
+        "Sunbeam Theatre Whampoa": {
+            location: "Hung Hom",
+            today: [
+                { movie:"Goodbye UFO", hall:"4院", version:"2D 粵語", time:"09:15 PM", price:"$60", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "Broadway B+ Cinema apm": {
+            location: "Kwun Tong",
+            today: [
+                { movie:"Top Gun", hall:"2院", version:"2D 英語", time:"07:30 PM", price:"$70", rating:"IIA" }
+            ],
+            tomorrow: []
+        },
+        "Emperor Cinema Plus+ Tai Wai": {
+            location: "Tai Wai",
+            today: [
+                { movie:"The Sheep Detectives", hall:"3院", version:"2D 粵語", time:"02:00 PM", price:"$60", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "Emperor Cinema Lohas Park": {
+            location: "Tseung Kwan O",
+            today: [
+                { movie:"Michael", hall:"1院", version:"2D 英語", time:"05:00 PM", price:"$80", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "Emperor Cinema Tuen Mun": {
+            location: "Tuen Mun",
+            today: [
+                { movie:"A Man and A Woman", hall:"5院", version:"2D 粵語", time:"03:30 PM", price:"$60", rating:"I" }
+            ],
+            tomorrow: []
+        },
+        "MCL Metro City": {
+            location: "Tseung Kwan O",
+            today: [
+                { movie:"Cold War 1994", hall:"IMAX", version:"IMAX 粵語", time:"08:20 PM", price:"$150", rating:"IIB" }
+            ],
+            tomorrow: []
+        },
+        "Golden Harvest Fanling": {
+            location: "Fanling",
+            today: [
+                { movie:"We Are Not Something", hall:"2院", version:"2D 粵語", time:"04:00 PM", price:"$55", rating:"IIA" }
+            ],
+            tomorrow: []
+        },
+        "Broadway Tsuen Wan": {
+            location: "Tsuen Wan",
+            today: [
+                { movie:"Top Gun: Maverick", hall:"4院", version:"2D 英語", time:"09:30 PM", price:"$120", rating:"IIA" }
+            ],
+            tomorrow: []
+        }
+    };
+
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+    let currentCinema = null;
+    let currentDate = "today";
+    const translations = { en:{ today_btn:"Today", tomorrow_btn:"Tomorrow", next_day:"Next day →" }, zh:{ today_btn:"今日", tomorrow_btn:"明日", next_day:"下一日 →" } };
+
+    // ---------- 更新影院名称显示（根据当前语言）----------
+    function updateCinemaDisplayName() {
+        const nameSpan = document.getElementById('cinemaNameDisplay');
+        const badgeSpan = document.getElementById('cinemaBadge');
+        if (currentCinema && showtimesDB[currentCinema]) {
+            // 有数据，显示影院名称和位置
+            const mapEntry = cinemaNameMap[currentCinema];
+            if (mapEntry) {
+                nameSpan.innerText = currentLang === 'en' ? mapEntry.en : mapEntry.zh;
+            } else {
+                nameSpan.innerText = currentCinema; // 保底显示英文
+            }
+            badgeSpan.innerText = showtimesDB[currentCinema].location; // 位置保持英文，也可再映射
+            badgeSpan.style.display = 'inline-block';
+        } else if (currentCinema) {
+            // 影院不在 showtimesDB 中（如未配置场次）
+            nameSpan.innerText = currentLang === 'en' ? "Cinema not found" : "影院未找到";
+            badgeSpan.innerText = "";
+            badgeSpan.style.display = 'none';
+        } else {
+            nameSpan.innerText = currentLang === 'en' ? "Cinema not found" : "影院未找到";
+            badgeSpan.innerText = "";
+            badgeSpan.style.display = 'none';
+        }
+    }
+
+    function buyTicket(cinema, movie, time, bookingUrl) {
+        if (bookingUrl && bookingUrl.trim() !== "") {
+            window.open(bookingUrl, '_blank');
+        } else {
+            alert(`🎟️ 正在為您跳轉至「${cinema}」購買《${movie}》場次 ${time}\n(演示模式，正式版本將連結至影院官網售票頁面)`);
+        }
+    }
+
+    function render() {
+        const data = (currentCinema && showtimesDB[currentCinema]) ? (currentDate==='today'?showtimesDB[currentCinema].today:showtimesDB[currentCinema].tomorrow) : [];
+        const container = document.getElementById('showtimesContainer');
+        if(!data.length){
+            container.innerHTML='<div style="text-align:center;padding:60px;">' + (currentLang==='en' ? 'No showtimes' : '暫無場次') + '</div>';
+            return;
+        }
+        container.innerHTML = data.map(s => `
+            <div class="showtime-card">
+                <div class="card-row">
+                    <div class="movie-info">
+                        <div class="movie-title">${s.movie}</div>
+                        <div class="movie-meta"><span>${s.rating || ''}</span><span>${s.version || ''}</span></div>
+                    </div>
+                    <div class="hall">${s.hall}</div>
+                    <div class="showtime">${s.time}</div>
+                    <div class="price">${s.price}</div>
+                    <button class="buy-btn" onclick="buyTicket('${currentCinema}', '${s.movie}', '${s.time}', '${s.bookingUrl || ''}')">${currentLang==='en' ? 'Buy' : '購票'}</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateUI(){
+        document.querySelectorAll('[data-lang-key]').forEach(el=>{
+            let k=el.getAttribute('data-lang-key');
+            if(translations[currentLang][k]) el.innerText=translations[currentLang][k];
+        });
+        updateCinemaDisplayName();   // 更新影院名称显示
+        render();
+        document.getElementById('langToggle').innerText=currentLang==='en'?'中':'EN';
+    }
+
+    function setLanguage(l){
+        currentLang=l;
+        localStorage.setItem('wmoov_lang',l);
+        updateUI();
+    }
+
+    function loadCinema(){
+        let params=new URLSearchParams(window.location.search);
+        let name=params.get('cinema');
+        if(name && showtimesDB[name]){
+            currentCinema=name;
+        } else {
+            // 如果影院不在 showtimesDB 中，仍记录名称用于显示，但后续 render 会显示无场次
+            currentCinema = name || null;
+        }
+        updateCinemaDisplayName();
+        render();
+    }
+
+    document.getElementById('langToggle').addEventListener('click',()=>setLanguage(currentLang==='en'?'zh':'en'));
+    document.querySelectorAll('.date-btn').forEach(btn=>btn.addEventListener('click',()=>{
+        currentDate=btn.getAttribute('data-date');
+        document.querySelectorAll('.date-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        render();
+    }));
+    document.getElementById('nextDayBtn').addEventListener('click',()=>{
+        currentDate=currentDate==='today'?'tomorrow':'today';
+        document.querySelectorAll('.date-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector(`.date-btn[data-date="${currentDate}"]`).classList.add('active');
+        render();
+    });
+    loadCinema();
+    setLanguage(currentLang);
+</script>
+</body>
+</html>

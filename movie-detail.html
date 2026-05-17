@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WMOOV · Movie Details & Showtimes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; scroll-behavior:smooth; }
+        .container { max-width:1280px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:32px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; font-size:0.95rem; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:600; cursor:pointer; color:#F5B042; }
+        .movie-hero { display:flex; flex-wrap:wrap; gap:40px; background:linear-gradient(145deg,#12121A,#07070C); border-radius:40px; padding:32px 40px; margin-bottom:48px; border:1px solid rgba(245,176,66,0.2); }
+        .movie-poster { flex:0.8; min-width:200px; background:radial-gradient(circle at 20% 30%,#2B2B3A,#0F0F15); border-radius:28px; display:flex; align-items:center; justify-content:center; padding:30px 20px; border:1px solid rgba(255,200,100,0.3); }
+        .movie-poster img { width:100%; max-width:200px; height:auto; border-radius:16px; }
+        .movie-info { flex:2; }
+        .movie-title { font-size:2.2rem; font-weight:800; margin-bottom:8px; }
+        .movie-desc { color:#CACAE0; margin:16px 0; line-height:1.6; }
+        .rating-badge { display:inline-flex; align-items:center; gap:12px; background:#1F1F2A; padding:6px 16px; border-radius:40px; margin:12px 0; }
+        .rating-badge i { color:#FFC107; }
+        .runtime { color:#A1A1C2; font-size:0.9rem; }
+        .trailer-btn { background:rgba(245,176,66,0.15); border:1px solid #F5B042; padding:10px 24px; border-radius:40px; color:#F5B042; font-weight:600; cursor:pointer; display:inline-block; margin-top:16px; }
+        .date-selector { display:flex; flex-wrap:wrap; gap:12px; margin:32px 0 24px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; }
+        .date-chip { background:#1A1A26; padding:8px 20px; border-radius:40px; font-size:0.9rem; font-weight:500; cursor:pointer; border:1px solid #2C2C3A; }
+        .date-chip.active,.date-chip:hover { background:#F5B042; color:#0B0B0F; }
+        .cinema-card { background:#14141E; border-radius:28px; padding:20px 24px; margin-bottom:20px; border:1px solid #262633; transition:0.2s; }
+        .cinema-name { font-size:1.3rem; font-weight:700; display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .showtime-item { background:#1F1F2C; padding:8px 16px; border-radius:40px; display:flex; align-items:center; gap:12px; font-size:0.85rem; border:1px solid #3A3A4A; margin:8px 0; flex-wrap:wrap; }
+        .showtime-time { font-weight:700; color:#FFD966; }
+        .btn-buy { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:40px; color:#F5B042; font-weight:600; cursor:pointer; }
+        footer { margin-top:60px; padding:32px 0; text-align:center; border-top:1px solid rgba(255,255,255,0.05); color:#7E7E9A; }
+        @media (max-width:800px){ .movie-hero{flex-direction:column;} .container{padding:0 20px;} }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film" style="color:#F5B042;"></i>WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html">Movies</a>
+            <a href="now-showing.html">Now Showing</a>
+            <a href="coming-soon.html">Coming Soon</a>
+            <a href="cinema.html">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-user-circle"></i></div>
+    </nav>
+
+    <div class="movie-hero" id="movieHero"></div>
+    <div class="date-selector" id="dateSelector"></div>
+    <div id="showtimesContainer"></div>
+
+    <footer><p>© 2026 WMOOV · Movie showtimes & ticket booking</p></footer>
+</div>
+
+<script>
+    // ---------- 电影数据库（保持不变）----------
+    const moviesDB = {
+        "Cold War 1994": { zh: "寒戰1994", rating: "8.7/10", runtime_en: "128 min", runtime_zh: "128分鐘", desc_en: "The most anticipated Hong Kong action thriller of the year. A tale of power, betrayal, and justice.", desc_zh: "年度最期待香港動作驚悚片，權力、背叛與正義的故事。", poster: "image/寒戰1994.jpg" },
+        "The Devil Wears Prada 2": { zh: "穿Prada的惡魔2", rating: "7.9/10", runtime_en: "115 min", runtime_zh: "115分鐘", desc_en: "Miranda Priestly faces a dangerous new rival in the fashion world.", desc_zh: "米蘭達面臨時尚界最危險的新對手。", poster: "image/穿Prada的惡魔2.jpg" },
+        "The Night King (Director's Cut)": { zh: "夜王（導演版）", rating: "8.2/10", runtime_en: "142 min", runtime_zh: "142分鐘", desc_en: "The epic fantasy saga continues with an extended director's cut.", desc_zh: "史詩奇幻傳奇以導演加長版繼續。", poster: "image/夜王.jpg" },
+        "Goodbye UFO": { zh: "再見UFO", rating: "7.5/10", runtime_en: "98 min", runtime_zh: "98分鐘", desc_en: "A sci‑fi adventure about first contact and farewell.", desc_zh: "關於第一次接觸與告別的科幻冒險。", poster: "image/再見UFO.jpg" },
+        "Michael": { zh: "米高積遜", rating: "8.9/10", runtime_en: "105 min", runtime_zh: "105分鐘", desc_en: "A documentary celebrating the life and music of Michael Jackson.", desc_zh: "慶祝米高積遜生平與音樂的紀錄片。", poster: "image/米高積遜.jpg" },
+        "Mortal Kombat II": { zh: "真人快打II", rating: "7.8/10", runtime_en: "110 min", runtime_zh: "110分鐘", desc_en: "The tournament continues with more brutal combat.", desc_zh: "錦標賽繼續，更多殘酷戰鬥。", poster: "image/真人快打II.jpg" },
+        "The Sheep Detectives": { zh: "綿羊偵探團", rating: "7.2/10", runtime_en: "85 min", runtime_zh: "85分鐘", desc_en: "A family mystery comedy with fluffy detectives.", desc_zh: "毛絨絨偵探的家庭懸疑喜劇。", poster: "image/綿羊偵探團.jpg" },
+        "Top Gun: Maverick": { zh: "壯志凌雲：獨行俠", rating: "8.5/10", runtime_en: "131 min", runtime_zh: "131分鐘", desc_en: "Maverick returns to train a new generation of pilots.", desc_zh: "獨行俠回歸訓練新一代飛行員。", poster: "image/壯志凌雲 - 獨行俠.jpg" },
+        "We Are Not Something": { zh: "我們不是什麼", rating: "6.9/10", runtime_en: "92 min", runtime_zh: "92分鐘", desc_en: "A psychological mystery about identity and truth.", desc_zh: "關於身份與真相的心理懸疑片。", poster: "image/我們不是什麼.jpg" },
+        "A Man and A Woman": { zh: "一個男人和一個女人", rating: "7.6/10", runtime_en: "102 min", runtime_zh: "102分鐘", desc_en: "A romantic drama of love and connection.", desc_zh: "關於愛情與聯繫的浪漫劇情片。", poster: "image/一個男人和一個女人.jpg" },
+        "The Silent Friend": { zh: "寂靜的朋友", rating: "8.0/10", runtime_en: "96 min", runtime_zh: "96分鐘", desc_en: "A powerful drama of friendship and loss.", desc_zh: "關於友誼與失去的強力劇情片。", poster: "image/寂靜的朋友.jpeg" },
+        "Top Gun": { zh: "壯志凌雲", rating: "8.6/10", runtime_en: "110 min", runtime_zh: "110分鐘", desc_en: "The classic fighter pilot action film.", desc_zh: "經典戰鬥機飛行員動作片。", poster: "image/壯志凌雲.jpg" }
+    };
+
+    // 英皇戏院全局购票链接
+    const globalBookingUrlMap = {
+        "Cold War 1994": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=d879cb987476",
+        "The Devil Wears Prada 2": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=66a68303fd3d",
+        "Michael": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=06a77707f563",
+        "Top Gun: Maverick": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=2eac8c3801bf",
+        "The Sheep Detectives": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=88139a4fc341",
+        "Mortal Kombat II": "https://www.emperorcinemas.com/showtimes?wapid=ECML_WEB_PROD_S_MPS&filmUniqueId=616db12df8bd"
+    };
+
+    // 影院特定购票链接
+    const cinemaSpecificBookingUrl = {
+        "The Devil Wears Prada 2||MCL K11 Art House": "https://www.mclcinema.com/MCLSelectSeat.aspx?ci=017&si=121011&visLang=2",
+        "Cold War 1994||Broadway MOVIE MOVIE": "https://www.cinema.com.hk/en/movie/751",
+        "Cold War 1994||MCL K11 Art House": "https://www.mclcinema.com/MCLSelectSeat.aspx?visLang=2&ci=017&si=120983"
+    };
+
+    // 为不同日期准备不同的场次数据（示例）
+    const showtimesByDate = {
+        "2026-05-15": [
+            { cinema: "Emperor Cinema Times Square", hall: "1院", version: "2D 粵語", time: "10:45 AM", price: "$65" },
+            { cinema: "MCL K11 Art House", hall: "4院", version: "2D 英語", time: "01:30 PM", price: "$70" }
+        ],
+        "2026-05-16": [
+            { cinema: "Broadway MOVIE MOVIE", hall: "IMAX", version: "IMAX 英語", time: "06:15 PM", price: "$120" },
+            { cinema: "Emperor Cinema Central", hall: "3院", version: "2D 粵語", time: "04:00 PM", price: "$65" }
+        ],
+        "2026-05-17": [
+            { cinema: "MCL K11 Art House", hall: "2院", version: "2D 英語", time: "12:00 PM", price: "$70" }
+        ],
+        "2026-05-18": [
+            { cinema: "Emperor Cinema Times Square", hall: "1院", version: "2D 粵語", time: "10:45 AM", price: "$65" },
+            { cinema: "MCL K11 Art House", hall: "4院", version: "2D 英語", time: "01:30 PM", price: "$70" },
+            { cinema: "Broadway MOVIE MOVIE", hall: "IMAX", version: "IMAX 粵語", time: "06:15 PM", price: "$120" }
+        ],
+        "2026-05-19": [
+            { cinema: "Emperor Cinema Central", hall: "5院", version: "2D 粵語", time: "02:30 PM", price: "$65" }
+        ],
+        "2026-05-20": [
+            { cinema: "MCL K11 Art House", hall: "8院", version: "2D 英語", time: "07:45 PM", price: "$70" }
+        ],
+        "2026-05-21": [
+            { cinema: "Broadway MOVIE MOVIE", hall: "4院", version: "2D 粵語", time: "11:00 AM", price: "$65" }
+        ]
+    };
+
+    function getShowtimesForDate(movieName, date) {
+        let showtimes = showtimesByDate[date] || [];
+        // 为每个场次添加 bookingUrl（基于电影和影院）
+        return showtimes.map(s => {
+            let bookingUrl = null;
+            const specificKey = `${movieName}||${s.cinema}`;
+            if (cinemaSpecificBookingUrl[specificKey]) {
+                bookingUrl = cinemaSpecificBookingUrl[specificKey];
+            } else if (globalBookingUrlMap[movieName]) {
+                bookingUrl = globalBookingUrlMap[movieName];
+            }
+            return { ...s, bookingUrl };
+        });
+    }
+
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+    let currentMovie = null;
+    let currentDate = "2026-05-18";
+
+    function loadMovieFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        let movieName = params.get('movie');
+        if (movieName) movieName = decodeURIComponent(movieName);
+        if (!movieName || !moviesDB[movieName]) {
+            movieName = "Cold War 1994";
+        }
+        currentMovie = movieName;
+        renderMovieDetail();
+    }
+
+    function renderMovieDetail() {
+        const data = moviesDB[currentMovie];
+        if (!data) return;
+        const lang = currentLang;
+        const title = lang === 'en' ? currentMovie : data.zh;
+        const rating = data.rating;
+        const runtime = lang === 'en' ? data.runtime_en : data.runtime_zh;
+        const desc = lang === 'en' ? data.desc_en : data.desc_zh;
+        const poster = data.poster;
+
+        document.getElementById('movieHero').innerHTML = `
+            <div class="movie-poster"><img src="${poster}" alt="${title}" onerror="this.src='https://picsum.photos/200/300'"></div>
+            <div class="movie-info">
+                <div class="movie-title">${title}</div>
+                <div class="movie-desc">${desc}</div>
+                <div class="rating-badge"><i class="fas fa-star"></i> ${rating} <span class="runtime"><i class="far fa-clock"></i> ${runtime}</span></div>
+                <button class="trailer-btn" onclick="alert('Trailer for ${title}')">${lang === 'en' ? 'Watch Trailer' : '觀看預告'}</button>
+            </div>
+        `;
+
+        const dates = ['5/15 (五)', '5/16 (六)', '5/17 (日)', '5/18 (一)', '5/19 (二)', '5/20 (三)', '5/21 (四)'];
+        const dateValues = ['2026-05-15', '2026-05-16', '2026-05-17', '2026-05-18', '2026-05-19', '2026-05-20', '2026-05-21'];
+        let dateHtml = '';
+        dateValues.forEach((val, idx) => {
+            dateHtml += `<div class="date-chip" data-date="${val}">${dates[idx]}</div>`;
+        });
+        document.getElementById('dateSelector').innerHTML = dateHtml;
+        // 设置当前日期高亮
+        setActiveDateChip(currentDate);
+        renderShowtimes(currentDate);
+
+        document.querySelectorAll('.date-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const newDate = chip.getAttribute('data-date');
+                currentDate = newDate;
+                setActiveDateChip(newDate);
+                renderShowtimes(newDate);
+            });
+        });
+    }
+
+    function setActiveDateChip(date) {
+        document.querySelectorAll('.date-chip').forEach(chip => {
+            if (chip.getAttribute('data-date') === date) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+    }
+
+    function renderShowtimes(date) {
+        const showtimes = getShowtimesForDate(currentMovie, date);
+        const container = document.getElementById('showtimesContainer');
+        if (!showtimes.length) {
+            container.innerHTML = `<div style="text-align:center; padding:60px; background:#14141E; border-radius:32px;">
+                <i class="fas fa-calendar-times" style="font-size:3rem; color:#F5B042;"></i>
+                <p style="margin-top:16px;">${currentLang === 'en' ? 'No showtimes available for this date.' : '此日期沒有場次'}</p>
+            </div>`;
+            return;
+        }
+        let html = '';
+        showtimes.forEach(s => {
+            const bookingUrl = s.bookingUrl || '';
+            html += `<div class="cinema-card">
+                <div class="cinema-name"><i class="fas fa-film"></i> ${s.cinema}</div>
+                <div class="showtime-item">
+                    <span class="showtime-time">${s.time}</span>
+                    <span>${s.hall} · ${s.version}</span>
+                    <span>${s.price}</span>
+                    <button class="btn-buy" onclick="buyTicket('${s.cinema}', '${currentMovie}', '${s.time}', '${bookingUrl}')">${currentLang === 'en' ? 'Buy' : '購票'}</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function buyTicket(cinema, movie, time, bookingUrl) {
+        if (bookingUrl && bookingUrl.trim() !== "") {
+            window.open(bookingUrl, '_blank');
+        } else {
+            alert(`🎟️ 正在為您跳轉至「${cinema}」購買《${movie}》場次 ${time}\n(演示模式，正式版本將連結至影院官網售票頁面)`);
+        }
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('wmoov_lang', lang);
+        document.getElementById('langToggle').innerText = lang === 'en' ? '中' : 'EN';
+        // 重新渲染整个详情页（场次也需要重新渲染，因为“暂无场次”文本依赖语言）
+        renderMovieDetail();
+    }
+
+    document.getElementById('langToggle').addEventListener('click', () => setLanguage(currentLang === 'en' ? 'zh' : 'en'));
+    loadMovieFromURL();
+</script>
+</body>
+</html>

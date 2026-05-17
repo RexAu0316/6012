@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMOOV · Cinemas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; }
+        .container { max-width:1280px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:40px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; cursor:pointer; color:#F5B042; }
+        .nav-icons { display:flex; gap:20px; }
+        .region-title { font-size:1.8rem; font-weight:700; margin:32px 0 24px; border-left:5px solid #F5B042; padding-left:12px; }
+        .cinema-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:24px; }
+        .cinema-link { text-decoration:none; color:inherit; display:block; }
+        .cinema-card { background:#14141E; border-radius:28px; padding:20px; border:1px solid #262633; display:flex; align-items:center; gap:18px; transition:0.2s; cursor:pointer; }
+        .cinema-card:hover { transform:translateY(-4px); border-color:#F5B04288; background:#1A1A28; }
+        .cinema-icon { font-size:2rem; width:60px; height:60px; background:#1F1F2C; border-radius:30px; display:flex; align-items:center; justify-content:center; color:#F5B042; }
+        .cinema-name { font-size:1.2rem; font-weight:700; margin-bottom:6px; }
+        .cinema-location { font-size:0.75rem; color:#A1A1C2; }
+        footer { text-align:center; padding:32px 0; margin-top:60px; border-top:1px solid rgba(255,255,255,0.05); color:#7E7E9A; }
+        @media (max-width:640px){ .cinema-card{flex-direction:column; text-align:center;} }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film"></i> WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html" data-lang-key="nav_movies">Movies</a>
+            <a href="now-showing.html" data-lang-key="nav_now_showing">Now Showing</a>
+            <a href="coming-soon.html" data-lang-key="nav_coming_soon">Coming Soon</a>
+            <a href="cinema.html" class="active" data-lang-key="nav_cinemas">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-user-circle"></i></div>
+    </nav>
+    <div style="margin:20px 0 30px;"><h1 style="font-size:2.2rem;"><i class="fas fa-theater-masks"></i> <span data-lang-key="page_title">Cinemas</span></h1></div>
+    <div class="region-section"><div class="region-title" data-lang-key="region_hk">Hong Kong Island</div><div class="cinema-grid" id="hkGrid"></div></div>
+    <div class="region-section"><div class="region-title" data-lang-key="region_kln">Kowloon</div><div class="cinema-grid" id="klnGrid"></div></div>
+    <div class="region-section"><div class="region-title" data-lang-key="region_nt">New Territories</div><div class="cinema-grid" id="ntGrid"></div></div>
+    <footer><p>© 2026 WMOOV · Cinema locations</p></footer>
+</div>
+<script>
+    const cinemasData = {
+        hk:[["Emperor Cinema Times Square","英皇戲院 時代廣場","Causeway Bay"],["Emperor Cinema Central","英皇戲院 中環娛樂行","Central"],["Emperor Cinema Plus+","英皇戲院 Plus+","Wong Chuk Hang"],["Broadway MOVIE MOVIE","百老匯 MOVIE MOVIE","Cityplaza"],["Pang's Cinema JP","彭發戲院 JP","Causeway Bay"],["Cinema City","Cinema City","Lei Tung Centre"],["MCL Chai Wan","MCL 柴灣","Chai Wan"]],
+        kln:[["Emperor Cinema iSQUARE","英皇戲院 iSQUARE","Tsim Sha Tsui"],["CGV Cinemas D2 Place","CGV D2 Place","Lai Chi Kok"],["Jade Theatre","寶石戲院","Kowloon City"],["Pang's Cinema MegaBox","彭發戲院 MegaBox","Kowloon Bay"],["MCL K11 Art House","MCL K11 Art House","Tsim Sha Tsui"],["Sunbeam Theatre Whampoa","新光戲院 黃埔","Hung Hom"],["Broadway B+ Cinema apm","百老匯 B+ apm","Kwun Tong"]],
+        nt:[["Emperor Cinema Plus+ Tai Wai","英皇戲院 Plus+ 大圍","Tai Wai"],["Emperor Cinema Lohas Park","英皇戲院 康城","Tseung Kwan O"],["Emperor Cinema Tuen Mun","英皇戲院 屯門","Tuen Mun"],["MCL Metro City","MCL 新都城","Tseung Kwan O"],["Golden Harvest Fanling","嘉禾 粉嶺","Fanling"],["Broadway Tsuen Wan","百老匯 荃灣","Tsuen Wan"]]
+    };
+    const translations = {
+        en:{ nav_movies:"Movies", nav_now_showing:"Now Showing", nav_coming_soon:"Coming Soon", nav_cinemas:"Cinemas", page_title:"Cinemas", region_hk:"Hong Kong Island", region_kln:"Kowloon", region_nt:"New Territories" },
+        zh:{ nav_movies:"電影", nav_now_showing:"現在上映", nav_coming_soon:"即將上映", nav_cinemas:"戲院", page_title:"戲院一覽", region_hk:"港島", region_kln:"九龍", region_nt:"新界" }
+    };
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+    function renderCinemas(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(el => { let k=el.getAttribute('data-lang-key'); if(translations[lang][k]) el.innerText=translations[lang][k]; });
+        function generateCard(c){ let [en,zh,loc]=c; let name=lang==='en'?en:zh; let encoded=encodeURIComponent(en); return `<a href="movie-list.html?cinema=${encoded}" class="cinema-link"><div class="cinema-card"><div class="cinema-icon"><i class="fas fa-building"></i></div><div><div class="cinema-name">${name}</div><div class="cinema-location"><i class="fas fa-map-marker-alt"></i> ${loc}</div></div></div></a>`; }
+        document.getElementById('hkGrid').innerHTML=cinemasData.hk.map(generateCard).join('');
+        document.getElementById('klnGrid').innerHTML=cinemasData.kln.map(generateCard).join('');
+        document.getElementById('ntGrid').innerHTML=cinemasData.nt.map(generateCard).join('');
+    }
+    function setLanguage(lang){ currentLang=lang; localStorage.setItem('wmoov_lang',lang); renderCinemas(lang); document.getElementById('langToggle').innerText=lang==='en'?'中':'EN'; }
+    document.getElementById('langToggle').addEventListener('click',()=>setLanguage(currentLang==='en'?'zh':'en'));
+    renderCinemas(currentLang);
+</script>
+</body>
+</html>

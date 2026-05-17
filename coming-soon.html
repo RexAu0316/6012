@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WMOOV · Coming Soon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; }
+        .container { max-width:1400px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:32px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; font-size:0.95rem; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:600; cursor:pointer; color:#F5B042; }
+        .hero-pre { background:linear-gradient(145deg,#1A1A2A,#0A0A10); border-radius:40px; padding:48px 36px; text-align:center; margin-bottom:48px; border:1px solid rgba(245,176,66,0.2); }
+        .hero-pre h1 { font-size:2.5rem; font-weight:800; background:linear-gradient(135deg,#FFD966,#F5B042); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        
+        /* Month group styles */
+        .month-group {
+            margin-bottom: 48px;
+        }
+        .month-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 32px 0 20px;
+            padding-left: 12px;
+            border-left: 5px solid #F5B042;
+            color: #FFD966;
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        .movie-card {
+            background: #14141E;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid #262633;
+            transition: 0.25s;
+        }
+        .movie-card:hover {
+            transform: translateY(-6px);
+            border-color: #F5B04288;
+        }
+        .poster {
+            height: 280px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .badge-group {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .format-badge {
+            background: #000000aa;
+            backdrop-filter: blur(4px);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #FFD966;
+            border: 1px solid #F5B04266;
+        }
+        .card-info {
+            padding: 20px;
+        }
+        .movie-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .title-en, .title-zh {
+            display: block;
+            line-height: 1.3;
+        }
+        .title-zh {
+            display: none;
+        }
+        body.lang-zh .title-en {
+            display: none;
+        }
+        body.lang-zh .title-zh {
+            display: block;
+        }
+        .release-date {
+            color: #FFD966;
+            font-size: 0.85rem;
+            margin: 8px 0;
+        }
+        .genre {
+            font-size: 0.75rem;
+            color: #BFBFE0;
+            margin: 8px 0 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .genre span {
+            background: #1F1F2C;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .btn-preorder {
+            background: rgba(245,176,66,0.15);
+            width: 100%;
+            border: 1px solid #F5B042;
+            padding: 10px 0;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #F5B042;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .btn-preorder:hover {
+            background: #F5B042;
+            color: #0B0B0F;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 32px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            font-size: 0.8rem;
+            color: #7E7E9A;
+        }
+        @media (max-width:750px) {
+            .container { padding:0 20px; }
+            .poster { height:220px; }
+            .hero-pre { padding:32px 20px; }
+        }
+    </style>
+</head>
+<body class="lang-en">
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film" style="color:#F5B042;"></i>WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html" data-lang-key="nav_movies">Movies</a>
+            <a href="now-showing.html" data-lang-key="nav_now_showing">Now Showing</a>
+            <a href="coming-soon.html" class="active" data-lang-key="nav_coming_soon">Coming Soon</a>
+            <a href="cinema.html" data-lang-key="nav_cinemas">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-user-circle"></i></div>
+    </nav>
+    <div class="hero-pre">
+        <h1><i class="fas fa-calendar-alt"></i> <span data-lang-key="hero_title">Coming Soon</span></h1>
+        <p data-lang-key="hero_desc">Upcoming movies — set reminders and be the first to book</p>
+    </div>
+
+    <!-- Month‑grouped movie grid -->
+    <div id="comingGrid" class="coming-groups"></div>
+
+    <footer>
+        <p><i class="far fa-copyright"></i> 2026 WMOOV — Upcoming Movies | Set reminders for new releases</p>
+        <p style="margin-top: 8px;">All dates are subject to change. This is an academic UX demonstration.</p>
+    </footer>
+</div>
+
+<script>
+    // ---------- Coming soon movies (with dates) ----------
+    const comingSoonMovies = [
+        { en:"The Mandalorian and Grogu", zh:"曼達洛人與古古 (MX4D版)", date_en:"May 21, 2026", date_zh:"2026年5月21日", genres_en:["Action","Sci-Fi"], genres_zh:["動作","科幻"], badge:"IMAX", poster:"image/曼達洛人與古古.jpg" },
+        { en:"Man On The Edge", zh:"邊緣行者", date_en:"Jun 3, 2026", date_zh:"2026年6月3日", genres_en:["Action","Crime"], genres_zh:["動作","犯罪"], badge:"", poster:"image/邊緣行者.jpg" },
+        { en:"The Botanist", zh:"植物學家", date_en:"Jun 4, 2026", date_zh:"2026年6月4日", genres_en:["Drama"], genres_zh:["劇情"], badge:"", poster:"image/植物學家.jpg" },
+        { en:"Backrooms", zh:"嚇房", date_en:"Jun 6, 2026", date_zh:"2026年6月6日", genres_en:["Thriller"], genres_zh:["驚悚"], badge:"", poster:"image/嚇房.jpg" },
+        { en:"Kids", zh:"半熟少年", date_en:"Jun 7, 2026", date_zh:"2026年6月7日", genres_en:["Drama"], genres_zh:["劇情"], badge:"", poster:"https://picsum.photos/id/26/300/450" },
+        { en:"Fire in the Eyes", zh:"火遮眼", date_en:"Jun 12, 2026", date_zh:"2026年6月12日", genres_en:["Action"], genres_zh:["動作"], badge:"", poster:"https://picsum.photos/id/38/300/450" },
+        { en:"Toy Story 5", zh:"反斗奇兵5", date_en:"Jun 18, 2026", date_zh:"2026年6月18日", genres_en:["Animation","Adventure"], genres_zh:["動畫","冒險"], badge:"IMAX", poster:"image/反斗奇兵5.jpg" },
+        { en:"Minions & The Monster", zh:"迷你兵團與大怪獸", date_en:"Jul 1, 2026", date_zh:"2026年7月1日", genres_en:["Animation","Comedy","Adventure"], genres_zh:["動畫","喜劇","冒險"], badge:"", poster:"image/迷你兵團與大怪獸.jpg" },
+        { en:"Moana Live-Action", zh:"魔海奇緣真人版", date_en:"Jul 9, 2026", date_zh:"2026年7月9日", genres_en:["Adventure","Fantasy"], genres_zh:["冒險","奇幻"], badge:"IMAX", poster:"image/真人版 魔海奇緣.jpg" },
+        { en:"Mortal Kombat II", zh:"真人快打II", date_en:"May 14, 2026", date_zh:"2026年5月14日", genres_en:["Action","Fantasy"], genres_zh:["動作","奇幻"], badge:"IMAX", poster:"image/真人快打II.jpg" },
+        { en:"Milky☆Subway: The Train to the Cinema", zh:"銀河特急 Milky☆Subway：開往戲院的列車", date_en:"May 7, 2026", date_zh:"2026年5月7日", genres_en:["Animation","Adventure"], genres_zh:["動畫","冒險"], badge:"", poster:"image/銀河特急 Milky☆Subway：開往戲院的列車 .jpeg" }
+    ];
+
+    const translations = {
+        en: {
+            nav_movies: "Movies",
+            nav_now_showing: "Now Showing",
+            nav_coming_soon: "Coming Soon",
+            nav_cinemas: "Cinemas",
+            hero_title: "Coming Soon",
+            hero_desc: "Upcoming movies — set reminders and be the first to book",
+            remind_btn: "Remind Me",
+            month_may: "May 2026",
+            month_jun: "June 2026",
+            month_jul: "July 2026"
+        },
+        zh: {
+            nav_movies: "電影",
+            nav_now_showing: "現在上映",
+            nav_coming_soon: "即將上映",
+            nav_cinemas: "戲院",
+            hero_title: "即將上映",
+            hero_desc: "即將推出的電影 — 設定提醒，率先訂票",
+            remind_btn: "提醒我",
+            month_may: "2026年5月",
+            month_jun: "2026年6月",
+            month_jul: "2026年7月"
+        }
+    };
+
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+
+    // Helper to get month key from a date string (en or zh format)
+    function getMonthKey(movie) {
+        const dateStr = currentLang === 'en' ? movie.date_en : movie.date_zh;
+        // Match month name or number
+        if (dateStr.includes('May') || dateStr.includes('5月')) return 'may';
+        if (dateStr.includes('Jun') || dateStr.includes('6月')) return 'jun';
+        if (dateStr.includes('Jul') || dateStr.includes('7月')) return 'jul';
+        return 'other';
+    }
+
+    function groupMoviesByMonth() {
+        const groups = { may: [], jun: [], jul: [], other: [] };
+        comingSoonMovies.forEach(movie => {
+            const key = getMonthKey(movie);
+            groups[key].push(movie);
+        });
+        return groups;
+    }
+
+    function renderComingSoon() {
+        const groups = groupMoviesByMonth();
+        const container = document.getElementById('comingGrid');
+        if (!container) return;
+
+        const monthOrder = ['may', 'jun', 'jul'];
+        let html = '';
+
+        monthOrder.forEach(monthKey => {
+            const movies = groups[monthKey];
+            if (movies.length === 0) return;
+            const monthTitleKey = `month_${monthKey}`;
+            const monthTitle = translations[currentLang][monthTitleKey] || monthKey.toUpperCase();
+            html += `<div class="month-group">
+                        <div class="month-title">${monthTitle}</div>
+                        <div class="movie-grid">`;
+            movies.forEach(m => {
+                html += `
+                    <div class="movie-card">
+                        <div class="poster" style="background-image:url('${m.poster}'); background-size:cover; background-position:center;">
+                            <div class="badge-group">${m.badge ? `<span class="format-badge">${m.badge}</span>` : ''}</div>
+                        </div>
+                        <div class="card-info">
+                            <div class="movie-title">
+                                <span class="title-en">${m.en}</span>
+                                <span class="title-zh">${m.zh}</span>
+                            </div>
+                            <div class="release-date"><i class="far fa-calendar-alt"></i> ${currentLang === 'en' ? m.date_en : m.date_zh}</div>
+                            <div class="genre">
+                                ${(currentLang === 'en' ? m.genres_en : m.genres_zh).map(g => `<span>${g}</span>`).join('')}
+                            </div>
+                            <div class="btn-preorder" onclick="alert('Reminder set for ${currentLang === 'en' ? m.en : m.zh} (demo)')">
+                                ${translations[currentLang].remind_btn} <i class="fas fa-bell"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateUI() {
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (translations[currentLang][key]) {
+                if (key === 'remind_btn') {
+                    el.innerHTML = translations[currentLang][key] + ' <i class="fas fa-bell"></i>';
+                } else {
+                    el.innerText = translations[currentLang][key];
+                }
+            }
+        });
+        renderComingSoon();
+        document.getElementById('langToggle').innerText = currentLang === 'en' ? '中' : 'EN';
+        // Set body class for title visibility
+        document.body.classList.remove('lang-en', 'lang-zh');
+        document.body.classList.add(`lang-${currentLang}`);
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('wmoov_lang', lang);
+        updateUI();
+    }
+
+    document.getElementById('langToggle').addEventListener('click', () => {
+        setLanguage(currentLang === 'en' ? 'zh' : 'en');
+    });
+
+    // Initial render
+    setLanguage(currentLang);
+</script>
+</body>
+</html>

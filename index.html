@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WMOOV · Hong Kong Movies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#0B0B0F; color:#F2F2F7; line-height:1.5; scroll-behavior:smooth; }
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:#1C1C24; }
+        ::-webkit-scrollbar-thumb { background:#5A5A70; border-radius:8px; }
+        .container { max-width:1280px; margin:0 auto; padding:0 32px; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:20px 0; flex-wrap:wrap; gap:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:40px; }
+        .logo { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#F5B042,#E83E3E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .nav-links { display:flex; gap:32px; font-weight:500; align-items:center; flex-wrap:wrap; }
+        .nav-links a { text-decoration:none; color:#DDDDEE; transition:0.2s; font-size:0.95rem; }
+        .nav-links a:hover,.nav-links a.active { color:#F5B042; }
+        .lang-btn { background:rgba(245,176,66,0.2); border:1px solid #F5B042; padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:0.2s; color:#F5B042; }
+        .lang-btn:hover { background:#F5B042; color:#0B0B0F; }
+        .nav-icons { display:flex; gap:20px; font-size:1.2rem; }
+        .nav-icons i { cursor:pointer; color:#AAAAC0; transition:0.2s; }
+        .nav-icons i:hover { color:#F5B042; }
+
+        .hero { display:flex; flex-wrap:wrap; gap:48px; background:linear-gradient(145deg,#12121A,#07070C); border-radius:44px; padding:40px 48px; margin-bottom:72px; border:1px solid rgba(245,176,66,0.2); position:relative; overflow:hidden; }
+        .hero::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(circle at 70% 30%,rgba(245,176,66,0.1),transparent); pointer-events:none; }
+        .hero-content { flex:1.2; min-width:260px; z-index:1; }
+        .hero-badge { background:#F5B04220; color:#F5B042; display:inline-block; padding:6px 14px; border-radius:40px; font-size:0.8rem; font-weight:700; margin-bottom:20px; border:1px solid #F5B04240; }
+        .hero-content h1 { font-size:3.3rem; font-weight:800; letter-spacing:-1px; line-height:1.2; margin-bottom:12px; }
+        .hero-sub { font-size:1.9rem; font-weight:600; color:#FFD966; margin-bottom:8px; }
+        .hero-desc { color:#CACAE0; margin-bottom:28px; font-size:1rem; max-width:90%; }
+        .rating-area { display:flex; gap:24px; margin-bottom:32px; }
+        .stars { background:#1F1F2A; padding:8px 16px; border-radius:60px; }
+        .score-number { font-size:1.6rem; font-weight:800; margin-left:6px; }
+        .tomato { background:#2C2416; padding:6px 18px; border-radius:40px; color:#FF8866; }
+        .hero-buttons { display:flex; gap:20px; flex-wrap:wrap; }
+        .btn-primary, .btn-secondary { border:none; padding:12px 32px; font-weight:700; border-radius:40px; cursor:pointer; transition:0.2s; }
+        .btn-primary { background:#F5B042; color:#0B0B0F; }
+        .btn-primary:hover { background:#FFC46B; transform:scale(1.02); }
+        .btn-secondary { background:rgba(255,255,255,0.08); color:#F2F2F7; border:1px solid rgba(245,176,66,0.5); }
+        .hero-poster { flex:0.8; min-width:260px; background:radial-gradient(circle at 20% 30%,#2B2B3A,#0F0F15); border-radius:32px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,200,100,0.3); }
+        .poster-placeholder { text-align:center; padding:20px; }
+        .poster-placeholder img { width:200px; max-width:90%; height:auto; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.5); margin-bottom:12px; display:block; margin-left:auto; margin-right:auto; }
+
+        .section-header { display:flex; justify-content:space-between; align-items:baseline; margin:56px 0 24px; }
+        .movie-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:28px; margin-bottom:32px; }
+        .movie-card { background:#14141E; border-radius:28px; overflow:hidden; border:1px solid #262633; transition:0.25s; }
+        .movie-card:hover { transform:translateY(-6px); border-color:#F5B04288; box-shadow:0 15px 30px -10px rgba(0,0,0,0.5); }
+        .card-img { height:280px; display:flex; align-items:center; justify-content:center; background:#1A1A2A; position:relative; overflow:hidden; }
+        .card-img img { width:100%; height:100%; object-fit:cover; }
+        .card-img .fallback-icon { position:absolute; font-size:3rem; color:#F5B04280; }
+        .card-info { padding:18px 16px 20px; }
+        .movie-tag { background:#1F1F2C; display:inline-block; padding:4px 12px; border-radius:30px; font-size:0.7rem; margin:8px 0 12px; }
+        .card-actions { display:flex; gap:12px; margin-top:18px; }
+        .small-btn { background:transparent; border:1px solid #40405A; padding:6px 14px; border-radius:40px; font-size:0.75rem; cursor:pointer; color:#F0F0FF; transition:0.2s; }
+        .small-btn-primary { background:#F5B04220; border-color:#F5B042; color:#FEE7B3; }
+        .small-btn-primary:hover { background:#F5B042; color:#0B0B0F; }
+        .small-btn:hover { background:#2C2C3C; }
+
+        .coming-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:28px; margin-bottom:60px; }
+        .coming-card { background:#14141E; border-radius:28px; padding:20px; border:1px solid #262633; transition:0.2s; }
+        .coming-card:hover { border-color:#F5B04299; transform:translateY(-4px); }
+        .release-date { background:#23222E; display:inline-block; padding:4px 14px; border-radius:60px; margin-bottom:14px; color:#FFD966; font-size:0.8rem; }
+        .coming-desc { font-size:0.85rem; color:#C8C8E0; margin:12px 0 18px; line-height:1.45; }
+        .coming-buttons { display:flex; gap:15px; margin-top:10px; }
+
+        footer { margin-top:70px; padding:32px 0; border-top:1px solid rgba(255,255,255,0.05); text-align:center; font-size:0.8rem; color:#7E7E9A; }
+        @media (max-width:800px) { .container { padding:0 20px; } .hero { flex-direction:column; } .hero-content h1 { font-size:2.4rem; } .poster-placeholder img { width:160px; } .card-img { height:220px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-film" style="color:#F5B042; margin-right:8px;"></i>WMOOV</div>
+        <div class="nav-links">
+            <a href="index.html" class="active" data-lang-key="nav_movies">Movies</a>
+            <a href="now-showing.html" data-lang-key="nav_now_showing">Now Showing</a>
+            <a href="coming-soon.html" data-lang-key="nav_coming_soon">Coming Soon</a>
+            <a href="cinema.html" data-lang-key="nav_cinemas">Cinemas</a>
+            <button class="lang-btn" id="langToggle">中/EN</button>
+        </div>
+        <div class="nav-icons"><i class="fas fa-user-circle"></i></div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <div class="hero-badge" data-lang-key="hero_badge">#1 Hong Kong Box Office</div>
+            <h1><span data-lang-key="hero_title1">Cold War</span><br><span data-lang-key="hero_title2">1994</span></h1>
+            <div class="hero-sub" data-lang-key="hero_sub">寒戰1994</div>
+            <div class="hero-desc" data-lang-key="hero_desc">The most anticipated Hong Kong action thriller of the year. A tale of power, betrayal, and justice.</div>
+            <div class="rating-area"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><span class="score-number">8.7</span><span style="color:#AFAFC5;">/10</span></div><div class="tomato"><i class="fas fa-tomato"></i> <span data-lang-key="tomato">96% Fresh</span></div></div>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="window.location.href='movie-detail.html?movie=Cold%20War%201994'" data-lang-key="buy_btn">Buy Tickets</button>
+                <button class="btn-secondary" onclick="alert('Trailer')" data-lang-key="trailer_btn">Watch Trailer</button>
+            </div>
+        </div>
+        <div class="hero-poster"><div class="poster-placeholder"><img src="image/寒戰1994.jpg" alt="Cold War 1994 poster" onerror="this.src='https://picsum.photos/id/104/200/300?grayscale'"><p data-lang-key="poster_badge">IMAX · 2D · Dolby Atmos</p></div></div>
+    </div>
+
+    <div class="section-header"><h2><span data-lang-key="now_showing">Now Showing</span> <span style="font-size:1rem;" data-lang-key="now_showing_sub">in Hong Kong</span></h2><div class="view-all" onclick="window.location.href='now-showing.html'" data-lang-key="view_all">View all <i class="fas fa-arrow-right"></i></div></div>
+    <div class="movie-grid" id="nowShowingGrid"></div>
+
+    <div class="section-header"><h2><span data-lang-key="coming_soon">Coming Soon</span> <span style="font-size:1rem;" data-lang-key="coming_soon_sub">upcoming releases</span></h2><div class="view-all" onclick="window.location.href='coming-soon.html'" data-lang-key="more_btn">More <i class="fas fa-arrow-right"></i></div></div>
+    <div class="coming-grid" id="comingSoonGrid"></div>
+
+    <footer><p>© 2026 WMOOV · Academic UX Project | Latest Hong Kong movie listings</p></footer>
+</div>
+
+<script>
+    const nowShowingMovies = [
+        { en: "Cold War 1994", zh: "寒戰1994", tag_en: "Action / Thriller / Crime", tag_zh: "動作 / 驚悚 / 犯罪", poster: "image/寒戰1994.jpg" },
+        { en: "The Devil Wears Prada 2", zh: "穿Prada的惡魔2", tag_en: "Drama / Comedy", tag_zh: "劇情 / 喜劇", poster: "image/穿Prada的惡魔2.jpg" },
+        { en: "The Night King (Director's Cut)", zh: "夜王（導演版）", tag_en: "Fantasy / Action / Epic", tag_zh: "奇幻 / 動作 / 史詩", poster: "image/夜王.jpg" },
+        { en: "Goodbye UFO", zh: "再見UFO", tag_en: "Sci-Fi / Adventure / Drama", tag_zh: "科幻 / 冒險 / 劇情", poster: "image/再見UFO.jpg" },
+        { en: "Michael", zh: "米高積遜", tag_en: "Biography / Music", tag_zh: "傳記 / 音樂", poster: "image/米高積遜.jpg" },
+        { en: "Mortal Kombat II", zh: "真人快打II", tag_en: "Action / Adventure / Fantasy", tag_zh: "動作 / 冒險 / 奇幻", poster: "image/真人快打II.jpg" },
+        { en: "The Sheep Detectives", zh: "綿羊偵探團", tag_en: "Family / Comedy / Mystery", tag_zh: "家庭 / 喜劇 / 懸疑", poster: "image/綿羊偵探團.jpg" },
+        { en: "Top Gun: Maverick", zh: "壯志凌雲：獨行俠", tag_en: "Action", tag_zh: "動作", poster: "image/壯志凌雲 - 獨行俠.jpg" },
+    ];
+
+    const comingSoonMovies = [
+        { en: "The Mandalorian and Grogu", zh: "曼達洛人與古古 (MX4D版)", date_en: "May 21, 2026", date_zh: "2026年5月21日", desc_en: "The Mandalorian and Grogu embark on an epic adventure across the galaxy.", desc_zh: "曼達洛人與古古展開一場跨越銀河的史詩冒險。" },
+        { en: "Man On The Edge", zh: "邊緣行者", date_en: "Jun 3, 2026", date_zh: "2026年6月3日", desc_en: "An undercover cop gets caught in a web of gang rivalries and police corruption.", desc_zh: "臥底警員身陷黑幫爭位與黑警陰謀的漩渦之中。" },
+        { en: "The Botanist", zh: "植物學家", date_en: "Jun 4, 2026", date_zh: "2026年6月4日", desc_en: "A touching story of a botanist discovering rare plants in remote regions.", desc_zh: "植物學家在偏遠地區發現稀有植物的感人故事。" },
+        { en: "Backrooms", zh: "嚇房", date_en: "Jun 6, 2026", date_zh: "2026年6月6日", desc_en: "A therapist enters a surreal dimension to rescue her lost patient.", desc_zh: "心理治療師踏入超越現實的奇異維度，冒險拯救失蹤的病人。" },
+        { en: "Kids", zh: "半熟少年", date_en: "Jun 7, 2026", date_zh: "2026年6月7日", desc_en: "A coming-of-age story about youth and rebellion.", desc_zh: "關於青春與反叛的成長故事。" },
+        { en: "Fire in the Eyes", zh: "火遮眼", date_en: "Jun 12, 2026", date_zh: "2026年6月12日", desc_en: "A father fights to save his daughter from a criminal network.", desc_zh: "絕望父親孤身闖入犯罪網絡，踏上救女之路。" },
+        { en: "Toy Story 5", zh: "反斗奇兵5", date_en: "Jun 18, 2026", date_zh: "2026年6月18日", desc_en: "Woody and Buzz return to save traditional toys from a new generation of digital play.", desc_zh: "胡迪與巴斯光年回歸，守護孩童傳統玩具的地位。" },
+        { en: "Minions & The Monster", zh: "迷你兵團與大怪獸", date_en: "Jul 1, 2026", date_zh: "2026年7月1日", desc_en: "The Minions befriend a lonely monster and embark on a hilarious adventure.", desc_zh: "迷你兵團與孤獨怪獸成為朋友，展開搞笑冒險。" },
+        { en: "Moana Live-Action", zh: "魔海奇緣真人版", date_en: "Jul 9, 2026", date_zh: "2026年7月9日", desc_en: "The adventure of Moana comes to life in this stunning live-action adaptation.", desc_zh: "摩阿娜的冒險在這部震撼的真人改編版中栩栩如生。" }
+    ];
+
+    const translations = {
+        en: { nav_movies:"Movies", nav_now_showing:"Now Showing", nav_coming_soon:"Coming Soon", nav_cinemas:"Cinemas", hero_badge:"#1 Hong Kong Box Office", hero_title1:"Cold War", hero_title2:"1994", hero_sub:"寒戰1994", hero_desc:"The most anticipated Hong Kong action thriller of the year. A tale of power, betrayal, and justice.", tomato:"96% Fresh", buy_btn:"Buy Tickets", trailer_btn:"Watch Trailer", poster_badge:"IMAX · 2D · Dolby Atmos", now_showing:"Now Showing", now_showing_sub:"in Hong Kong", view_all:"View all", coming_soon:"Coming Soon", coming_soon_sub:"upcoming releases", more_btn:"More", buy_btn_short:"Buy", trailer_short:"Trailer", preorder_btn:"Pre-order" },
+        zh: { nav_movies:"電影", nav_now_showing:"現在上映", nav_coming_soon:"即將上映", nav_cinemas:"戲院", hero_badge:"香港票房冠軍", hero_title1:"寒戰", hero_title2:"1994", hero_sub:"Cold War 1994", hero_desc:"年度最期待香港動作驚悚片，權力、背叛與正義的故事。", tomato:"96% 好評", buy_btn:"立即購票", trailer_btn:"觀看預告", poster_badge:"IMAX · 2D · 杜比全景聲", now_showing:"現正熱映", now_showing_sub:"全港上映", view_all:"查看全部", coming_soon:"即將上映", coming_soon_sub:"即將推出", more_btn:"更多", buy_btn_short:"購買", trailer_short:"預告", preorder_btn:"預購" }
+    };
+
+    let currentLang = localStorage.getItem('wmoov_lang') || 'en';
+
+    function renderNowShowing(lang) {
+        const container = document.getElementById('nowShowingGrid');
+        container.innerHTML = nowShowingMovies.map(movie => {
+            const encodedName = encodeURIComponent(movie.en);
+            return `
+                <div class="movie-card">
+                    <div class="card-img"><img src="${movie.poster}" alt="${lang === 'en' ? movie.en : movie.zh}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="fallback-icon" style="display:none;"><i class="fas fa-film"></i></div></div>
+                    <div class="card-info">
+                        <h3>${lang === 'en' ? movie.en : movie.zh}</h3>
+                        <div class="movie-tag">${lang === 'en' ? movie.tag_en : movie.tag_zh}</div>
+                        <div class="card-actions">
+                            <button class="small-btn small-btn-primary" onclick="window.location.href='movie-detail.html?movie=${encodedName}'">${translations[lang].buy_btn_short}</button>
+                            <button class="small-btn" onclick="alert('Trailer for ${lang === 'en' ? movie.en : movie.zh}')">${translations[lang].trailer_short}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.querySelectorAll('.card-img img').forEach(img => {
+            img.onerror = function() { this.style.display = 'none'; this.nextElementSibling.style.display = 'flex'; };
+        });
+    }
+
+    function renderComingSoon(lang) {
+        const container = document.getElementById('comingSoonGrid');
+        container.innerHTML = comingSoonMovies.map(movie => `
+            <div class="coming-card">
+                <div class="release-date"><i class="far fa-calendar-alt"></i> ${lang === 'en' ? movie.date_en : movie.date_zh}</div>
+                <h3>${lang === 'en' ? movie.en : movie.zh}</h3>
+                <div class="coming-desc">${lang === 'en' ? movie.desc_en : movie.desc_zh}</div>
+                <div class="coming-buttons">
+                    <button class="small-btn small-btn-primary" onclick="alert('Pre-order ${lang === 'en' ? movie.en : movie.zh}')">${translations[lang].preorder_btn}</button>
+                    <button class="small-btn" onclick="alert('Trailer')">${translations[lang].trailer_short}</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateUILanguage(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (translations[lang][key]) {
+                if (key === 'view_all' || key === 'more_btn') {
+                    el.innerHTML = translations[lang][key] + ' <i class="fas fa-arrow-right"></i>';
+                } else {
+                    el.innerText = translations[lang][key];
+                }
+            }
+        });
+        renderNowShowing(lang);
+        renderComingSoon(lang);
+        document.getElementById('langToggle').innerText = lang === 'en' ? '中' : 'EN';
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('wmoov_lang', lang);
+        updateUILanguage(lang);
+    }
+
+    document.getElementById('langToggle').addEventListener('click', () => setLanguage(currentLang === 'en' ? 'zh' : 'en'));
+    setLanguage(currentLang);
+</script>
+</body>
+</html>
